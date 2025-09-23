@@ -14,9 +14,44 @@ use App\Models\React;
 use App\Models\Comment;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @OA\Info(
+ *      version="1.0.0",
+ *      title="My Laravel API",
+ *      description="API Documentation for Social App",
+ *      @OA\Contact(
+ *          email="thawzinsoe.dev@gmail.com"
+ *      )
+ * )
+ */
 class APISController extends Controller
 {
-    // ---------------- REGISTER ----------------
+    /**
+     * @OA\Post(
+     *     path="/api/register",
+     *     tags={"Auth"},
+     *     summary="Register a new user",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","username","password","password_confirmation"},
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="username", type="string"),
+     *             @OA\Property(property="password", type="string", format="password"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password"),
+     *             @OA\Property(property="profile_pic", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="User registered successfully"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error"
+     *     )
+     * )
+     */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -45,7 +80,23 @@ class APISController extends Controller
         return response()->json(['status' => 'success','message' => 'User registered successfully','user' => $user,'token' => $token], 201);
     }
 
-    // ---------------- LOGIN ----------------
+    /**
+     * @OA\Post(
+     *     path="/api/login",
+     *     tags={"Auth"},
+     *     summary="Login user",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"login","password"},
+     *             @OA\Property(property="login", type="string"),
+     *             @OA\Property(property="password", type="string", format="password")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Login successful"),
+     *     @OA\Response(response=401, description="Invalid credentials")
+     * )
+     */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -70,7 +121,16 @@ class APISController extends Controller
         return response()->json(['status'=>'success','message'=>'Login successful','user'=>$user,'token'=>$token]);
     }
 
-    // ---------------- LOGOUT ----------------
+    /**
+     * @OA\Post(
+     *     path="/api/logout",
+     *     tags={"Auth"},
+     *     summary="Logout user",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Logged out successfully"),
+     *     @OA\Response(response=403, description="Not logged in")
+     * )
+     */
     public function logout(Request $request)
     {
         if(!Auth::check()){
@@ -80,16 +140,30 @@ class APISController extends Controller
         return response()->json(['status' => 'success','message' => 'Logged out successfully']);
     }
 
-    // ---------------- NEWS FEED ----------------
+    /**
+     * @OA\Get(
+     *     path="/api/news-feed",
+     *     tags={"Posts"},
+     *     summary="Get news feed posts",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="List of posts")
+     * )
+     */
     public function newsFeed(Request $request)
     {
-        
         $posts = Post::with(['user','reacts','comments'])->latest()->paginate(10);
         return response()->json(['status'=>'success','posts'=>$posts]);
     }
 
-
-    // ---------------- MY PROFILE ----------------
+    /**
+     * @OA\Get(
+     *     path="/api/my-profile",
+     *     tags={"User"},
+     *     summary="Get my profile info",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="Profile details")
+     * )
+     */
     public function myProfile(Request $request)
     { 
         $user = $request->user()->loadCount(['posts','reacts','comments']);
@@ -105,16 +179,20 @@ class APISController extends Controller
             'profile_photo'  => $user->profile_photo_url, 
         ];
 
-        return response()->json([
-            'status'  => 'success',
-            'profile' => $profile
-        ]);
+        return response()->json(['status'=>'success','profile'=>$profile]);
     }
 
-    // ---------------- MY POSTS ----------------
+    /**
+     * @OA\Get(
+     *     path="/api/my-posts",
+     *     tags={"Posts"},
+     *     summary="Get my posts",
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(response=200, description="List of my posts")
+     * )
+     */
     public function myPosts(Request $request)
     {
-   
         $posts = Post::with(['user','reacts','comments'])
             ->where('user_id', $request->user()->id)
             ->latest()
@@ -123,11 +201,25 @@ class APISController extends Controller
         return response()->json(['status'=>'success','posts'=>$posts]);
     }
 
-
-    // ---------------- PostStore ----------------
+    /**
+     * @OA\Post(
+     *     path="/api/post",
+     *     tags={"Posts"},
+     *     summary="Create new post",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             @OA\Property(property="text", type="string"),
+     *             @OA\Property(property="image_file", type="string", format="binary"),
+     *             @OA\Property(property="video_file", type="string", format="binary")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Post created successfully"),
+     *     @OA\Response(response=422, description="Validation error")
+     * )
+     */
     public function PostStore(Request $request)
     {
-        // Validation
         $validator = Validator::make($request->all(), [
             'text'       => 'nullable|string|max:500',
             'image_file' => 'nullable|file|mimes:jpg,jpeg,png,gif|max:5120',   
@@ -135,24 +227,16 @@ class APISController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['status' => 'error','errors' => $validator->errors()], 422);
         }
 
-        // Check if at least text or file is provided
         if (!$request->filled('text') && !$request->hasFile('image_file') && !$request->hasFile('video_file')) {
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'You must enter text or upload a file.'
-            ], 422);
+            return response()->json(['status'=>'error','message'=>'You must enter text or upload a file.'],422);
         }
 
         $mediaType = null;
         $mediaUrl  = null;
 
-        // Handle image upload
         if ($request->hasFile('image_file')) {
             $file = $request->file('image_file');
             $mediaType = 'image';
@@ -160,7 +244,6 @@ class APISController extends Controller
             $mediaUrl = Storage::url($path);
         }
 
-        // Handle video upload
         if ($request->hasFile('video_file')) {
             $file = $request->file('video_file');
             $mediaType = 'video';
@@ -168,7 +251,6 @@ class APISController extends Controller
             $mediaUrl = Storage::url($path);
         }
 
-        // Create the post
         $post = Post::create([
             'user_id'    => Auth::id(),
             'text'       => $request->text,
@@ -177,20 +259,23 @@ class APISController extends Controller
             'status'     => 1, 
         ]);
 
-        return response()->json([
-            'status'  => 'success',
-            'message' => 'Post created successfully.',
-            'post'    => $post
-        ], 201);
+        return response()->json(['status'=>'success','message'=>'Post created successfully.','post'=>$post],201);
     }
 
-    // ---------------- DELETE MY POST ----------------
+    /**
+     * @OA\Delete(
+     *     path="/api/post/{id}",
+     *     tags={"Posts"},
+     *     summary="Delete my post",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Post deleted"),
+     *     @OA\Response(response=404, description="Post not found")
+     * )
+     */
     public function deleteMyPost(Request $request, $id)
     {
-       
-        $validator = Validator::make(['id'=>$id], [
-            'id'=>'required|exists:posts,id'
-        ]);
+        $validator = Validator::make(['id'=>$id], ['id'=>'required|exists:posts,id']);
         if ($validator->fails()) {
             return response()->json(['status'=>'error','errors'=>$validator->errors()],422);
         }
@@ -204,20 +289,30 @@ class APISController extends Controller
         return response()->json(['status'=>'success','message'=>'Post deleted']);
     }
 
-    // ---------------- REACT TOGGLE ----------------
+    /**
+     * @OA\Post(
+     *     path="/api/react",
+     *     tags={"Reacts"},
+     *     summary="Toggle like/react",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             required={"post_id"},
+     *             @OA\Property(property="post_id", type="integer")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="React toggled")
+     * )
+     */
     public function reactToggle(Request $request)
     {
-        
-        $validator = Validator::make($request->all(), [
-            'post_id' => 'required|exists:posts,id'
-        ]);
+        $validator = Validator::make($request->all(), ['post_id' => 'required|exists:posts,id']);
         if ($validator->fails()) {
             return response()->json(['status'=>'error','errors'=>$validator->errors()],422);
         }
-        $validated = $validator->validated();
 
         $userId = $request->user()->id;
-        $postId = $validated['post_id'];
+        $postId = $request->post_id;
 
         $react = React::where('post_id',$postId)->where('user_id',$userId)->first();
         if ($react) {
@@ -232,10 +327,25 @@ class APISController extends Controller
         return response()->json(['status'=>'success','liked'=>$liked,'count'=>$count]);
     }
 
-    // ---------------- COMMENT ----------------
+    /**
+     * @OA\Post(
+     *     path="/api/comment",
+     *     tags={"Comments"},
+     *     summary="Add comment",
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             required={"post_id","comment"},
+     *             @OA\Property(property="post_id", type="integer"),
+     *             @OA\Property(property="comment", type="string"),
+     *             @OA\Property(property="parent_id", type="integer")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Comment created")
+     * )
+     */
     public function comment(Request $request)
     {
-        
         $validator = Validator::make($request->all(), [
             'post_id'   => 'required|exists:posts,id',
             'comment'   => 'required|string|max:1000',
@@ -257,20 +367,25 @@ class APISController extends Controller
         return response()->json(['status'=>'success','comment'=>$comment],201);
     }
 
-    // ---------------- DELETE COMMENT ----------------
+    /**
+     * @OA\Delete(
+     *     path="/api/comment/{id}",
+     *     tags={"Comments"},
+     *     summary="Delete my comment",
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Comment deleted"),
+     *     @OA\Response(response=404, description="Comment not found")
+     * )
+     */
     public function deleteComment(Request $request, $id)
     {
-       
-        $validator = Validator::make(['id'=>$id], [
-            'id'=>'required|exists:comments,id'
-        ]);
+        $validator = Validator::make(['id'=>$id], ['id'=>'required|exists:comments,id']);
         if ($validator->fails()) {
             return response()->json(['status'=>'error','errors'=>$validator->errors()],422);
         }
 
-        $comment = Comment::where('id',$id)
-            ->where('user_id',$request->user()->id)
-            ->first();
+        $comment = Comment::where('id',$id)->where('user_id',$request->user()->id)->first();
         if (!$comment) {
             return response()->json(['status'=>'error','message'=>'Comment not found'],404);
         }
