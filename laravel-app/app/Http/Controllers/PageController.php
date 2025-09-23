@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Post;
 
 class PageController extends Controller
 {
@@ -17,9 +18,25 @@ class PageController extends Controller
         
     }
 
-    //home
-    public function index(){
-        return view("home");
+    // home
+    public function index(Request $request)
+    {
+        $posts = Post::with('user')
+            ->active()
+            ->latest()
+            ->paginate(5);
+
+        if ($request->ajax()) {
+            if ($posts->isEmpty()) {
+                return response()->json(['html' => '', 'done' => true]);
+            }
+            return response()->json([
+                'html' => view('components.post', compact('posts'))->render(),
+                'done' => false
+            ]);
+        }
+
+        return view('home', compact('posts'));
     }
 
     //home

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PostController;
 
 
 Route::get('/login', [PageController::class, 'login'])->name("login");
@@ -13,4 +14,7 @@ Route::middleware('auth')->group(function () {
     Route::post("/logout",[AuthController::class,"logout"])->name('auth.logout');
     Route::get('/', [PageController::class, 'index'])->name("home");
     Route::get('/profile', [PageController::class, 'profile'])->name("profile");
+    /* Post  */
+    Route::post("/post/store",[PostController::class,"store"]);
+    Route::post("/post/delete",[PostController::class,"delete"]);
 });
