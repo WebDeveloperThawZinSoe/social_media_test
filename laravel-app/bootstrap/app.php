@@ -16,11 +16,31 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
+
+        // 404
         $exceptions->render(function (HttpException $exception, $request) {
             $statusCode = $exception->getStatusCode();
-            if (in_array($statusCode, [404, 403, 419])) {
+            if (in_array($statusCode, [404])) {
                 return redirect('/');
             }
             return null;
+        });
+
+        // Force authentication errors to return JSON
+        $exceptions->renderable(function (\Illuminate\Auth\AuthenticationException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['status' => 'error', 'message' => 'Unauthenticated'], 401);
+            }
+        });
+
+        // Force validation errors to return JSON
+        $exceptions->renderable(function (\Illuminate\Validation\ValidationException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Validation failed',
+                    'errors'  => $e->errors(),
+                ], 422);
+            }
         });
     })->create();

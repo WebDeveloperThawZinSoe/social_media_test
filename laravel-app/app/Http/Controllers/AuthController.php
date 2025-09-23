@@ -59,7 +59,7 @@ class AuthController extends Controller
         $user->name     = $request->username;
         $user->email    = $request->email;
         $user->password = Hash::make($request->password);
-
+        $user->profile_photo_path = $request->profile_pic;
         $user->user_url = \Str::slug($request->username) . '-' . \Str::random(10);
 
         $user->save();
