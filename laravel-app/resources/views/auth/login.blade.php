@@ -5,7 +5,7 @@
 @push('styles')
 <style>
   body {
-    height: 100vh;
+    height: 110vh;
     margin: 0;
     display: flex;
     justify-content: center;
@@ -76,6 +76,11 @@
     text-align: center;
     margin-bottom: 15px;
   }
+  .text-danger {
+    font-size: 13px;
+    margin-top: 4px;
+    display: block;
+  }
 </style>
 @endpush
 
@@ -104,14 +109,21 @@
       <div class="tab-pane fade show active" id="login" role="tabpanel">
         <h6 class="fw-bold mb-2">Welcome back</h6>
         <p class="text-muted small mb-3">Enter your credentials to access your account</p>
-        <form>
+        <form method="POST" action="{{ route('auth.login') }}">
+          @csrf
           <div class="mb-3">
             <label class="form-label">Email or Username</label>
-            <input type="text" class="form-control" placeholder="Enter your email or username">
+            <input type="text" name="login" class="form-control @error('login') is-invalid @enderror" placeholder="Enter your email or username" value="{{ old('login') }}">
+            @error('login')
+              <span class="text-danger">{{ $message }}</span>
+            @enderror
           </div>
           <div class="mb-3">
             <label class="form-label">Password</label>
-            <input type="password" class="form-control" placeholder="Enter your password">
+            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Enter your password">
+            @error('password')
+              <span class="text-danger">{{ $message }}</span>
+            @enderror
           </div>
           <button type="submit" class="btn btn-signin">Sign in</button>
         </form>
@@ -121,22 +133,35 @@
       <div class="tab-pane fade" id="register" role="tabpanel">
         <h6 class="fw-bold mb-2">Create Account</h6>
         <p class="text-muted small mb-3">Join our community and start sharing</p>
-        <form>
+        <form method="POST" action="{{ route('auth.register') }}">
+          @csrf
           <div class="mb-3">
             <label class="form-label">Email</label>
-            <input type="email" class="form-control" placeholder="Enter your email">
+            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="Enter your email" value="{{ old('email') }}">
+            @error('email')
+              <span class="text-danger">{{ $message }}</span>
+            @enderror
           </div>
           <div class="mb-3">
             <label class="form-label">Username</label>
-            <input type="text" class="form-control" placeholder="Choose a username">
+            <input type="text" name="username" class="form-control @error('username') is-invalid @enderror" placeholder="Choose a username" value="{{ old('username') }}">
+            @error('username')
+              <span class="text-danger">{{ $message }}</span>
+            @enderror
           </div>
           <div class="mb-3">
             <label class="form-label">Password</label>
-            <input type="password" class="form-control" placeholder="Create a password">
+            <input type="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Create a password">
+            @error('password')
+              <span class="text-danger">{{ $message }}</span>
+            @enderror
           </div>
           <div class="mb-3">
             <label class="form-label">Profile Picture URL (optional)</label>
-            <input type="text" class="form-control" placeholder="Enter image URL">
+            <input type="text" name="profile_pic" class="form-control @error('profile_pic') is-invalid @enderror" placeholder="https://example.com/your-photo.jpg" value="{{ old('profile_pic') }}">
+            @error('profile_pic')
+              <span class="text-danger">{{ $message }}</span>
+            @enderror
           </div>
           <button type="submit" class="btn btn-signin">Register</button>
         </form>
@@ -151,3 +176,18 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // If register form has errors, switch to register tab
+        let hasRegisterError = {{ $errors->has('email') || $errors->has('username') || $errors->has('password') || $errors->has('profile_pic') ? 'true' : 'false' }};
+        let activeTab = hasRegisterError ? 'register' : @json(session('tab', 'login'));
+
+        let triggerEl = document.querySelector(`#${activeTab}-tab`);
+        if (triggerEl) {
+            new bootstrap.Tab(triggerEl).show();
+        }
+    });
+</script>
+@endpush

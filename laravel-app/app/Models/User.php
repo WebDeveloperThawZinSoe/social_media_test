@@ -31,6 +31,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'user_url',
     ];
 
     /**
@@ -65,5 +66,15 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getProfilePhotoUrlAttribute(): string
+    {
+        if ($this->profile_photo_path) {
+            return asset($this->profile_photo_path);
+        }
+
+        // Default avatar
+        return 'https://static.vecteezy.com/system/resources/thumbnails/036/280/651/small/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-illustration-vector.jpg';
     }
 }

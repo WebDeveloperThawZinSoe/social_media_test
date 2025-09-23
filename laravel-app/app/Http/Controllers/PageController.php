@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PageController extends Controller
 {
     //index
     public function login(){
-        return view('auth.login');
+        if(Auth::check()){
+            return redirect("/");
+        }else{
+            return view('auth.login');
+        }
+        
     }
 
     //home

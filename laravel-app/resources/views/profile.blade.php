@@ -80,9 +80,9 @@
   <div class="profile-card">
     <h6 class="fw-bold mb-3">Profile</h6>
     <div class="text-center">
-      <img src="https://i.pravatar.cc/80?img=3" alt="profile">
-      <h5 class="fw-bold">alex_dev</h5>
-      <p class="text-muted mb-2">demo@example.com</p>
+      <img src="{{ Auth::user()->getProfilePhotoUrlAttribute() }}" alt="profile">
+      <h5 class="fw-bold">{{ Auth::user()->name }}</h5>
+      <p class="text-muted mb-2">{{ Auth::user()->email }}</p>
       <div class="profile-stats">
         <div><strong>1</strong><br>Posts</div>
         <div><strong>2</strong><br>Likes</div>
@@ -96,9 +96,9 @@
   <div class="post-card">
     <div class="d-flex justify-content-between align-items-start">
       <div class="post-header">
-        <img src="https://i.pravatar.cc/40?img=3">
+        <img src="{{ Auth::user()->getProfilePhotoUrlAttribute() }}">
         <div>
-          <strong>alex_dev</strong><br>
+          <strong>{{ Auth::user()->name }}</strong><br>
           <span class="post-meta">12h ago</span>
         </div>
       </div>

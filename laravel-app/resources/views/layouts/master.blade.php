@@ -6,8 +6,12 @@
   <title>@yield('title','Social')</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-   <style>  
-       body {
+
+  <!-- Toastr CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+  <style>  
+    body {
       background: #f8fafc;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
@@ -41,7 +45,6 @@
       margin-right: 6px;
     }
 
-    /* Active nav background */
     .navbar .nav-link {
       padding: 6px 12px;
       border-radius: 8px;
@@ -58,13 +61,45 @@
     .navbar .nav-link:hover {
       background: #f9fafb;
     }
-   </style>
+  </style>
   @stack('styles') 
 </head>
 <body>
   @yield('content') 
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- jQuery (needed for toastr) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <!-- Toastr JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <script>
+    // Toastr options
+    toastr.options = {
+      "closeButton": true,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "timeOut": "4000"
+    }
+
+    @if(session('success'))
+      toastr.success("{{ session('success') }}");
+    @endif
+
+    @if(session('error'))
+      toastr.error("{{ session('error') }}");
+    @endif
+
+    @if(session('info'))
+      toastr.info("{{ session('info') }}");
+    @endif
+
+    @if(session('warning'))
+      toastr.warning("{{ session('warning') }}");
+    @endif
+  </script>
+
   @stack('scripts') 
 </body>
 </html>
