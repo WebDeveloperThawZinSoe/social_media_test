@@ -5,6 +5,7 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ReactController;
+use App\Http\Controllers\CommentController;
 
 
 Route::get('/login', [PageController::class, 'login'])->name("login");
@@ -22,4 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::delete("/post/{id}/delete",[PostController::class,"delete"])->name("post.delete");
     /* React */
     Route::post("/react/toggle",[ReactController::class,"react_toggle"])->name("react.toggle");
+    /* Comment */
+    Route::post("/comment/store",[CommentController::class,"store"])->name("comment.store");
+    Route::delete("/comment/{id}/delete",[CommentController::class,"delete"])->name("comment.delete");
 });

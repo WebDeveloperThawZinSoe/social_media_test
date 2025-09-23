@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Post extends Model
 {
@@ -36,6 +37,11 @@ class Post extends Model
         return $this->hasMany(React::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
 
     public function scopeActive($query)
     {
@@ -47,10 +53,21 @@ class Post extends Model
         return $this->reacts()->count();
     }
 
-    public function getIsReactedAttribute()
+    public function getCommentCountAttribute()
     {
-        return auth()->check() 
-            ? $this->reacts()->where('user_id', auth()->id())->exists()
-            : false;
+        return $this->comments()->count();
     }
+
+
+    public function isIReact()
+    {
+        $userId = Auth::id();
+        if (!$userId) {
+            return false;
+        }
+
+        return $this->reacts()->where('user_id', $userId)->exists();
+    }
+
+
 }

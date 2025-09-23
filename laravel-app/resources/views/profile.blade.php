@@ -86,7 +86,7 @@
               <div class="profile-stats">
                   <div><strong>{{ $posts->count() }}</strong><br>Posts</div>
                   <div><strong>{{ $posts->sum(fn($p) => $p->reacts()->count()) }}</strong><br>Likes</div>
-                  <div><strong>0</strong><br>Comments</div>
+                  <div><strong>{{ $posts->sum(fn($p) => $p->comments()->count()) }}</strong><br>Comments</div>
               </div>
           </div>
       </div>

@@ -75,11 +75,14 @@ class PageController extends Controller
         }
 
         $userId = $user->id;
+ 
 
         $posts = Post::with(['user', 'reacts'])
             ->where('user_id', $userId)
             ->latest()
             ->paginate(5);
+        
+        // dd($posts->count());
 
         if ($request->ajax()) {
             if ($posts->isEmpty()) {

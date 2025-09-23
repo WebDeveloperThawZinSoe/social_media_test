@@ -38,14 +38,29 @@
             <div class="d-flex justify-content-between mt-3">
                 <div class="post-actions">
                     <span class="react-btn" data-id="{{ $post->id }}">
-                        <i class="bi {{ $post->isReacted ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
-                        <span class="react-count">{{ $post->reactCount }}</span>
+                        <i class="bi {{ $post->isIReact() ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
+                        <span class="react-count">{{ $post->getReactCountAttribute() }}</span>
                     </span>
-                    <span class="ms-3"><i class="bi bi-chat"></i> 0</span>
+                    <span class="ms-3"><i class="bi bi-chat"></i> {{$post->getCommentCountAttribute()}} </span>
                 </div>
             </div>
 
-            <input type="text" class="form-control comment-box mt-2" placeholder="Write a comment...">
+        
+
+            {{-- Add comment form --}}
+            <form action="{{ route('comment.store') }}" method="POST" class="mt-2 add-comment-form" data-post="{{ $post->id }}">
+                @csrf
+                <input type="hidden" name="post_id" value="{{ $post->id }}">
+                <input type="text" name="comment" class="form-control comment-box mt-2" placeholder="Write a comment..." required>
+            </form>
+
+            {{-- Comments list --}}
+            <div class="mt-2  comments-list" id="comments-{{ $post->id }}">
+                @foreach($post->comments()->latest()->take(5)->get() as $comment)
+                    @include('components.comment',['comment'=>$comment])
+                @endforeach
+            </div>
+         
         </div>
     @endforeach
 </div>
@@ -112,7 +127,9 @@ document.addEventListener('DOMContentLoaded', function () {
         page++;
         document.getElementById('loading').style.display = 'block';
 
-        fetch(`/?page=${page}`, { headers: { "X-Requested-With": "XMLHttpRequest" } })
+        fetch(`${window.location.pathname}?page=${page}`, { 
+            headers: { "X-Requested-With": "XMLHttpRequest" } 
+        })
         .then(res => res.json())
         .then(data => {
             document.getElementById('loading').style.display = 'none';
