@@ -1,5 +1,7 @@
 <div id="post-container">
     @foreach($posts as $post)
+         {{-- {{$post->user_id}}
+         {{Auth::user()->id}} --}}
         <div class="card p-3 mt-4">
             <div class="post-header d-flex align-items-center">
                 <img src="{{ $post->user->profile_photo_url ?? asset('default-avatar.png') }}" 
@@ -12,7 +14,8 @@
                     <span class="post-meta text-muted small">{{ $post->created_at->diffForHumans() }}</span>
                 </div>
 
-                @if(auth()->id() === $post->user_id)
+                @if(Auth::user()->id == $post->user_id)
+                    
                     <button type="button"
                             class="btn btn-link text-danger p-0 ms-auto"
                             data-bs-toggle="modal"

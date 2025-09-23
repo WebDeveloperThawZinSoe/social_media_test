@@ -52,17 +52,20 @@ class APISController extends Controller
      *     )
      * )
      */
-    public function register(Request $request)
+        public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email'       => 'required|email|unique:users,email',
-            'username'    => 'required|string|min:3|max:20|unique:users,name',
-            'password'    => 'required|string|min:8|confirmed',
-            'profile_pic' => 'nullable|url',
+            'email'                 => 'required|email|unique:users,email',
+            'username'              => 'required|string|min:3|max:20|unique:users,name',
+            'password'              => 'required|string|min:8|confirmed',
+            'profile_pic'           => 'nullable|url',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status' => 'error','errors' => $validator->errors()], 422);
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         $validated = $validator->validated();
@@ -72,12 +75,17 @@ class APISController extends Controller
             'email'               => $validated['email'],
             'password'            => Hash::make($validated['password']),
             'user_url'            => Str::slug($validated['username']) . '-' . Str::random(10),
-            'profile_photo_path'  => $validated['profile_pic'] ?? null
+            'profile_photo_path'  => $validated['profile_pic'] ?? null,
         ]);
 
         $token = $user->createToken('api_token')->plainTextToken;
 
-        return response()->json(['status' => 'success','message' => 'User registered successfully','user' => $user,'token' => $token], 201);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'User registered successfully',
+            'user'    => $user,
+            'token'   => $token
+        ], 201);
     }
 
     /**
@@ -97,7 +105,7 @@ class APISController extends Controller
      *     @OA\Response(response=401, description="Invalid credentials")
      * )
      */
-    public function login(Request $request)
+      public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'login'    => 'required|string',
@@ -105,20 +113,32 @@ class APISController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status'=>'error','errors'=>$validator->errors()],422);
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         $validated = $validator->validated();
         $loginType = filter_var($validated['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
 
-        if (!Auth::attempt([$loginType => $validated['login'], 'password' => $validated['password']])) {
-            return response()->json(['status' => 'error', 'message' => 'Invalid credentials'], 401);
+        $user = User::where($loginType, $validated['login'])->first();
+
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Invalid credentials'
+            ], 401);
         }
 
-        $user = Auth::user();
         $token = $user->createToken('api_token')->plainTextToken;
 
-        return response()->json(['status'=>'success','message'=>'Login successful','user'=>$user,'token'=>$token]);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Login successful',
+            'user'    => $user,
+            'token'   => $token
+        ]);
     }
 
     /**
