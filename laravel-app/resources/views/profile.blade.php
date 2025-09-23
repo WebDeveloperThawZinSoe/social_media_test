@@ -80,9 +80,9 @@
       <div class="profile-card">
           <h6 class="fw-bold mb-3">Profile</h6>
           <div class="text-center">
-              <img src="{{ Auth::user()->getProfilePhotoUrlAttribute() }}" alt="profile">
-              <h5 class="fw-bold">{{ Auth::user()->name }}</h5>
-              <p class="text-muted mb-2">{{ Auth::user()->email }}</p>
+              <img src="{{ $user->getProfilePhotoUrlAttribute() }}" alt="profile">
+              <h5 class="fw-bold">{{ $user->name }}</h5>
+              <p class="text-muted mb-2">{{ $user->email }}</p>
               <div class="profile-stats">
                   <div><strong>{{ $posts->count() }}</strong><br>Posts</div>
                   <div><strong>{{ $posts->sum(fn($p) => $p->reacts()->count()) }}</strong><br>Likes</div>
@@ -91,7 +91,7 @@
           </div>
       </div>
 
-      <h6 class="fw-bold mt-4 mb-3">Your Posts</h6>
+      <h6 class="fw-bold mt-4 mb-3"> @if( $user->id == auth::id()) Your @else {{$user->name}} @endif Posts</h6>
       <div id="post-container">
           @include('components.post', ['posts' => $posts])
       </div>

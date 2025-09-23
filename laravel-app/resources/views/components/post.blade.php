@@ -3,7 +3,7 @@
   <div class="post-header">
     <img src="{{ $post->user->getProfilePhotoUrlAttribute() }}" class="post-avatar">
     <div>
-      <strong>{{ $post->user->name }}</strong><br>
+      <strong><a href="{{route('other_profile',$post->user->user_url)}}">{{ $post->user->name }}</a></strong><br>
       <span class="post-meta">{{ $post->created_at->diffForHumans() }}</span>
     </div>
   </div>

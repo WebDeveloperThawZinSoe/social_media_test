@@ -14,7 +14,9 @@ Route::post("/register",[AuthController::class,"register"])->name("auth.register
 Route::middleware('auth')->group(function () {
     Route::post("/logout",[AuthController::class,"logout"])->name('auth.logout');
     Route::get('/', [PageController::class, 'index'])->name("home");
+    /* Profile */
     Route::get('/profile', [PageController::class, 'profile'])->name("profile");
+    Route::get("/profile/{user_url}",[PageController::class,"other_profile"])->name("other_profile");
     /* Post  */
     Route::post("/post/store",[PostController::class,"store"])->name("post.store");
     Route::post("/post/delete",[PostController::class,"delete"])->name("post.delete");
