@@ -20,26 +20,37 @@ class Post extends Model
         'status',
     ];
 
-    /**
-     * The attributes that should be cast.
-     */
+
     protected $casts = [
         'status' => 'integer',
     ];
 
-    /**
-     * Get the user that owns the post.
-     */
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Example scope for active posts.
-     */
+    public function reacts()
+    {
+        return $this->hasMany(React::class);
+    }
+
+
     public function scopeActive($query)
     {
         return $query->where('status', 1);
+    }
+
+     public function getReactCountAttribute()
+    {
+        return $this->reacts()->count();
+    }
+
+    public function getIsReactedAttribute()
+    {
+        return auth()->check() 
+            ? $this->reacts()->where('user_id', auth()->id())->exists()
+            : false;
     }
 }

@@ -21,13 +21,16 @@
     @endif
     @endif
 
-
-  <div class="d-flex justify-content-between mt-3">
-    <div class="post-actions">
-      <span><i class="bi bi-heart"></i> 0</span>
-      <span><i class="bi bi-chat"></i> 0</span>
+    <div class="d-flex justify-content-between mt-3">
+        <div class="post-actions">
+            <span class="react-btn" data-id="{{ $post->id }}">
+                <i class="bi {{ $post->getIsReactedAttribute() ? 'bi-heart-fill text-danger' : 'bi-heart' }}"></i>
+                <span class="react-count">{{ $post->getReactCountAttribute() }}</span>
+            </span>
+            <span><i class="bi bi-chat"></i> 0</span>
+        </div>
     </div>
-  </div>
+
 
 
   <input type="text" class="form-control comment-box mt-2" placeholder="Write a comment...">
@@ -84,5 +87,40 @@ function loadMore() {
         loading = false;
     });
 }
+
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.react-btn')) {
+        let btn = e.target.closest('.react-btn');
+        let postId = btn.dataset.id;
+        let countEl = btn.querySelector('.react-count');
+        let icon = btn.querySelector('i');
+
+        fetch("{{ route('react.toggle') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ post_id: postId })
+        })
+        .then(res => res.json())
+        .then(data => {
+            // Update the react count
+            countEl.textContent = data.count;
+
+            if (data.liked) {
+                // Switch to filled red heart
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill', 'text-danger');
+            } else {
+                // Switch back to outline heart
+                icon.classList.remove('bi-heart-fill', 'text-danger');
+                icon.classList.add('bi-heart');
+            }
+        })
+        .catch(err => console.error(err));
+    }
+});
+
 </script>
 @endpush

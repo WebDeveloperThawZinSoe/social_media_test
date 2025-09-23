@@ -1,4 +1,4 @@
-  <form action="{{ url('/post/store') }}" method="POST" enctype="multipart/form-data" class="card composer p-3">
+  <form action="{{ route('post.store') }}" method="POST" enctype="multipart/form-data" class="card composer p-3">
       @csrf
       <h6 class="fw-bold mb-2">Create a post</h6>
 
