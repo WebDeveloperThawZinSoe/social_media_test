@@ -39,8 +39,27 @@ class PageController extends Controller
         return view('home', compact('posts'));
     }
 
-    //home
-    public function profile(){
-        return view("profile");
+    //profile
+    public function profile(Request $request)
+    {
+        $userId = Auth::id();
+
+        $posts = Post::with(['user', 'reacts'])
+            ->where('user_id', $userId)
+            ->latest()
+            ->paginate(5);
+
+        if ($request->ajax()) {
+            if ($posts->isEmpty()) {
+                return response()->json(['html' => '', 'done' => true]);
+            }
+
+            return response()->json([
+                'html' => view('components.post', compact('posts'))->render(),
+                'done' => false
+            ]);
+        }
+
+        return view('profile', compact('posts'));
     }
 }

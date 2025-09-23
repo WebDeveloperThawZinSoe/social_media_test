@@ -1,5 +1,5 @@
 @foreach($posts as $post)
-<div class="card p-3">
+<div class="card p-3 mt-4">
   <div class="post-header">
     <img src="{{ $post->user->getProfilePhotoUrlAttribute() }}" class="post-avatar">
     <div>
