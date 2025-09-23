@@ -56,16 +56,9 @@ class PostController extends Controller
     }
 
     // delete
-    public function delete(Request $request)
+    public function delete(Request $request, $id)
     {
-        $request->validate([
-            'post_id' => 'required|exists:posts,id',
-        ]);
-
-        $post = Post::where('id', $request->post_id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
-
+        $post = Post::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
 
         if ($post->media_url) {
             $path = str_replace('/storage/', '', $post->media_url);
@@ -73,7 +66,6 @@ class PostController extends Controller
         }
 
         $post->delete();
-
         return redirect()->route('home')->with('success', 'Post deleted successfully.');
     }
 }

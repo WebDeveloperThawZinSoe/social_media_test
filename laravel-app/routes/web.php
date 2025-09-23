@@ -19,7 +19,7 @@ Route::middleware('auth')->group(function () {
     Route::get("/profile/{user_url}",[PageController::class,"other_profile"])->name("other_profile");
     /* Post  */
     Route::post("/post/store",[PostController::class,"store"])->name("post.store");
-    Route::post("/post/delete",[PostController::class,"delete"])->name("post.delete");
+    Route::delete("/post/{id}/delete",[PostController::class,"delete"])->name("post.delete");
     /* React */
     Route::post("/react/toggle",[ReactController::class,"react_toggle"])->name("react.toggle");
 });
