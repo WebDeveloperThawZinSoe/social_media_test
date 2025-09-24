@@ -84,9 +84,12 @@
               <h5 class="fw-bold">{{ $user->name }}</h5>
               <p class="text-muted mb-2">{{ $user->email }}</p>
               <div class="profile-stats">
-                  <div><strong>{{ $posts->count() }}</strong><br>Posts</div>
-                  <div><strong>{{ $posts->sum(fn($p) => $p->reacts()->count()) }}</strong><br>Likes</div>
-                  <div><strong>{{ $posts->sum(fn($p) => $p->comments()->count()) }}</strong><br>Comments</div>
+                  @php 
+                    $allPosts = App\Models\Post::where("user_id",$user->id)->get();
+                  @endphp
+                  <div><strong>{{ $allPosts->count() }}</strong><br>Posts</div>
+                  <div><strong>{{ $allPosts->sum(fn($p) => $p->reacts()->count()) }}</strong><br>Likes</div>
+                  <div><strong>{{ $allPosts->sum(fn($p) => $p->comments()->count()) }}</strong><br>Comments</div>
               </div>
           </div>
       </div>
